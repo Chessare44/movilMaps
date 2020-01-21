@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapsActivity" >
+        <Button
+            android:id="@+id/btnlocali"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="right|top"
+            android:background="@drawable/ic_my_location_black_24dp"
+            android:padding="10dp"
+            android:layout_marginTop="20dp"
+            android:paddingRight="10dp"/>
+        <Button
+            android:id="@+id/btncar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="right|top"
+
+            android:background="@drawable/ic_local_taxi_black_24dp"
+            android:padding="10dp"
+            android:layout_marginTop="100sp"
+            android:paddingRight="20dp"/>
+
+
+</fragment>
