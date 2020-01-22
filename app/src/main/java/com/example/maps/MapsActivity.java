@@ -5,11 +5,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -23,9 +26,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
+    Button loca;
+    Button car;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +56,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         enableMyLocation();
-
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap.setOnMapLongClickListener(this);
+
+        Button loca = (Button) findViewById(R.id.btnlocali);
+        Button car = (Button) findViewById(R.id.btncar);
+
+        loca.setOnClickListener(this);
+        car.setOnClickListener(this);
+
+        loca.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                miPosicion();
+            }
+        });
+
     }
 
     private void enableMyLocation() {
@@ -68,40 +87,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void miPosicion() {
 
         LocationManager objLocation = null;
-        LocationListener objLocListener;
+        Miposicion objLocListener;
         objLocation = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         objLocListener = new Miposicion();
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    Activity#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            return;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1000);
         }
 
-        objLocation.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, objLocListener);
+        if(objLocation.isProviderEnabled(LocationManager.GPS_PROVIDER)){
 
-        if(Miposicion.latitud != 0){
+            if(Miposicion.latitud != 0){
 
-            double lat = Miposicion.coordenadas.getLatitude();
-            double lon = Miposicion.coordenadas.getLongitude();
-            Toast.makeText(
-                    MapsActivity.this,
-                    "latitud"+lat+"\n Longitud"+lon,
-                    Toast.LENGTH_SHORT).show();
-            LatLng miubica = new LatLng(lat, lon);
-            Marker mi_ubicacion = mMap.addMarker(new MarkerOptions().position(miubica)
-                    .title("Mi ubicacion").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(miubica));
-            CameraUpdate ZoomCam = CameraUpdateFactory.zoomTo(16);
-            mMap.animateCamera(ZoomCam);
-
-
+                double lat = Miposicion.coordenadas.getLatitude();
+                double lon = Miposicion.coordenadas.getLongitude();
+                Toast.makeText(
+                        MapsActivity.this,
+                        "latitud"+lat+"\n Longitud"+lon,
+                        Toast.LENGTH_SHORT).show();
+                LatLng miubica = new LatLng(lat, lon);
+                Marker mi_ubicacion = mMap.addMarker(new MarkerOptions().position(miubica)
+                        .title("Mi ubicacion").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(miubica));
+                CameraUpdate ZoomCam = CameraUpdateFactory.zoomTo(16);
+                mMap.animateCamera(ZoomCam);
+            }else{
+                Toast.makeText( MapsActivity.this, "la localizacion no está funcionando", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
+            alert.setTitle("GPS NO ESTÁ ACTIVO");
+            alert.setMessage("Conectando con GPS");
+            alert.setPositiveButton("OK", null);
+            alert.create().show();
         }
 
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+
+        Toast.makeText(
+                MapsActivity.this,
+                "latitud"+latLng.latitude+"\n Longitud"+latLng.longitude,
+                Toast.LENGTH_SHORT).show();
+        Marker mi_ubicacion = mMap.addMarker(new MarkerOptions().position(latLng)
+                .title("Mi ubicacion").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v==loca){
+           
+        }
     }
 }
