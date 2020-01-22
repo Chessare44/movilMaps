@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -31,6 +32,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     Button loca;
     Button car;
+    public static final String MyPREFERENCES = "MyPrefs";
+    public static final String Latitud = "Latitud";
+    public static final String Longitud = "Longitud";
+
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        sharedPreferences=getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
     }
 
 
@@ -134,13 +141,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.LENGTH_SHORT).show();
         Marker mi_ubicacion = mMap.addMarker(new MarkerOptions().position(latLng)
                 .title("Mi ubicacion").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putFloat(Latitud, (float)latLng.latitude);
+        editor.putFloat(Longitud, (float)latLng.longitude);
+
+        editor.commit();
 
     }
 
     @Override
     public void onClick(View v) {
         if (v==loca){
-           
+           miPosicion();
+        }else if(v==car){
+            float la = sharedPreferences .getFloat(Latitud,0);
+            float lo = sharedPreferences .getFloat(Longitud,0);
+
+            LatLng miubica = new LatLng(la, lo);
+
+            Marker mi_ubicacion = mMap.addMarker(new MarkerOptions().position(miubica)
+                    .title("Mi ubicacion").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
         }
     }
 }
